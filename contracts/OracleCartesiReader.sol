@@ -20,13 +20,15 @@ interface ISelfKisser {
 /// @dev This contract combines the functionality of oracle reading and price relaying
 contract OracleCartesiReader {
     /// @notice The InputBox contract for adding inputs
-    IInputBox public inputBox;
+    IInputBox immutable public inputBox;
 
     /// @notice The Chronicle oracle contract for reading ETH/USD price
-    IChronicle public chronicle;
+    IChronicle immutable public chronicle;
 
     /// @notice The SelfKisser contract for whitelisting
-    ISelfKisser public selfKisser;
+    ISelfKisser immutable public selfKisser;
+
+    event PriceRelayed(address indexed dapp, uint256 price, uint256 age, bytes32 inputId);
 
     /// @notice Initializes the contract with necessary addresses
     /// @param _inputBoxAddress Address of the InputBox contract
@@ -70,6 +72,10 @@ contract OracleCartesiReader {
         ));
         
         // Add the input to the InputBox
-        return inputBox.addInput(_dappAddress, bytes(jsonString));
+        bytes32 inputId = inputBox.addInput(_dappAddress, bytes(jsonString));
+
+        emit PriceRelayed(_dappAddress, price, age, inputId);
+
+        return inputId;
     }
 }
