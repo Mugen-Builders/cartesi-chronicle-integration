@@ -16,6 +16,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@sunodo/wagmi-plugin-hardhat-deploy": "^0.3.0",
     "@tanstack/react-query": "5.45.1",
+    "axios": "^1.7.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.427.0",
