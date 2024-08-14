@@ -14,6 +14,8 @@ import { useAccount, useWriteContract } from "wagmi";
 import { useWriteInputBox } from "./hooks/generated";
 import { OracleCartesiReaderABi } from "./lib/oracleAbi";
 import { Address, Hex, stringToHex } from "viem";
+import { fetchGraphQLData } from "./utils/api";
+import { NOTICES_QUERY } from "./utils/queries";
 
 const DataFetchSection: React.FC = () => {
   const [dappAddress, setDappAddress] = useState("");
@@ -29,16 +31,24 @@ const DataFetchSection: React.FC = () => {
     timestamp: Math.floor(Date.now() / 1000),
   });
 
+  const hexToJson = (hex: string) => {
+    const str = Buffer.from(hex.slice(2), 'hex').toString('utf8');
+    return JSON.parse(str);
+  };
+
   const handleFetchData = async () => {
     try {
       const mockData = generateMockData();
-      
+      let endpoint = '';
+
       if (chain?.id === 31337) { // Anvil chain ID
+        endpoint = 'http://localhost:8080/graphql';
         await writeInputBox({
           functionName: "addInput",
           args: [dappAddress as Address, stringToHex(JSON.stringify(mockData)) as Hex],
         });
       } else if (chain?.id === 11155111) { // Sepolia chain ID
+        endpoint = 'https://cartesi-chronicle-test.fly.dev/graphql';
         await writeContractAsync({
           abi: OracleCartesiReaderABi,
           address: oracleContract as Address,
@@ -49,12 +59,21 @@ const DataFetchSection: React.FC = () => {
         console.error("Unsupported chain");
         return;
       }
+      
+      const data = await fetchGraphQLData<{ notices: { edges: { node: { payload: string } }[] } }>(
+        endpoint,
+        NOTICES_QUERY
+      );
 
-      // Update table data with mock data
-      setTableData(prevData => [{
-        price: mockData.ethUsdPrice,
-        timestamp: mockData.timestamp.toString(),
-      }, ...prevData.slice(0, 4)]);
+      // Decode the payload and update the table data
+      const decodedData = data.notices.edges.map(edge => hexToJson(edge.node.payload));
+
+      setTableData(
+        decodedData.map(decoded => ({
+          price: decoded.ethUsdPrice,
+          timestamp: new Date(decoded.timestamp * 1000).toLocaleString(), // Assuming the timestamp is in seconds
+        }))
+      );
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -106,7 +125,7 @@ const DataFetchSection: React.FC = () => {
             {tableData.map((data, index) => (
               <TableRow key={index}>
                 <TableCell>${data.price}</TableCell>
-                <TableCell>{new Date(parseInt(data.timestamp) * 1000).toLocaleString()}</TableCell>
+                <TableCell>{data.timestamp}</TableCell>
               </TableRow>
             ))}
           </TableBody>
