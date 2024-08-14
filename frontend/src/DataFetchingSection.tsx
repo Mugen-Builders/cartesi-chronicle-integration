@@ -22,7 +22,6 @@ const DataFetchSection: React.FC = () => {
   const [oracleContract, setOracleContract] = useState("");
   const [tableData, setTableData] = useState<Array<{ price: string; timestamp: string }>>([]);
   const [endpoint, setEndpoint] = useState<string>("");
-  let isContractWritten = false;
 
   const { chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -61,9 +60,7 @@ const DataFetchSection: React.FC = () => {
         console.error("Unsupported chain");
         return;
       }
-
-      // Notify user that contract write is complete
-      isContractWritten = true;
+      
       alert("Contract writing operation has finished!");
 
     } catch (error) {
