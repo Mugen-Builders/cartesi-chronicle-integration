@@ -22,7 +22,7 @@ const DataFetchSection: React.FC = () => {
   const [oracleContract, setOracleContract] = useState("");
   const [tableData, setTableData] = useState<Array<{ price: string; timestamp: string }>>([]);
   const [endpoint, setEndpoint] = useState<string>("");
-  const [setIsContractWritten] = useState(false);
+  let isContractWritten = false;
 
   const { chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -63,7 +63,7 @@ const DataFetchSection: React.FC = () => {
       }
 
       // Notify user that contract write is complete
-      setIsContractWritten(true);
+      isContractWritten = true;
       alert("Contract writing operation has finished!");
 
     } catch (error) {
