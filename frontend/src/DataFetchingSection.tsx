@@ -127,7 +127,7 @@ const DataFetchSection: React.FC = () => {
               Processing...
             </>
           ) : (
-            "Write Contract"
+            "Send Oracle Data To Cartesi"
           )}
         </Button>
       </div>
