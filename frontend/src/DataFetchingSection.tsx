@@ -22,7 +22,7 @@ const DataFetchSection: React.FC = () => {
   const [oracleContract, setOracleContract] = useState("");
   const [tableData, setTableData] = useState<Array<{ price: string; timestamp: string }>>([]);
   const [endpoint, setEndpoint] = useState<string>("");
-  const [isContractWritten, setIsContractWritten] = useState(false);
+  const [setIsContractWritten] = useState(false);
 
   const { chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
