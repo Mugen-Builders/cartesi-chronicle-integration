@@ -21,6 +21,8 @@ const DataFetchSection: React.FC = () => {
   const [dappAddress, setDappAddress] = useState("");
   const [oracleContract, setOracleContract] = useState("");
   const [tableData, setTableData] = useState<Array<{ price: string; timestamp: string }>>([]);
+  const [endpoint, setEndpoint] = useState<string>("");
+  const [isContractWritten, setIsContractWritten] = useState(false);
 
   const { chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -36,19 +38,19 @@ const DataFetchSection: React.FC = () => {
     return JSON.parse(str);
   };
 
-  const handleFetchData = async () => {
+  // First function to handle contract write
+  const handleWriteContract = async () => {
     try {
       const mockData = generateMockData();
-      let endpoint = '';
 
       if (chain?.id === 31337) { // Anvil chain ID
-        endpoint = 'http://localhost:8080/graphql';
+        setEndpoint('http://localhost:8080/graphql');
         await writeInputBox({
           functionName: "addInput",
           args: [dappAddress as Address, stringToHex(JSON.stringify(mockData)) as Hex],
         });
       } else if (chain?.id === 11155111) { // Sepolia chain ID
-        endpoint = 'https://cartesi-chronicle-test.fly.dev/graphql';
+        setEndpoint('https://cartesi-chronicle-test.fly.dev/graphql');
         await writeContractAsync({
           abi: OracleCartesiReaderABi,
           address: oracleContract as Address,
@@ -59,7 +61,24 @@ const DataFetchSection: React.FC = () => {
         console.error("Unsupported chain");
         return;
       }
-      
+
+      // Notify user that contract write is complete
+      setIsContractWritten(true);
+      alert("Contract writing operation has finished!");
+
+    } catch (error) {
+      console.error("Error writing contract:", error);
+    }
+  };
+
+  // Second function to fetch data and update the table
+  const handleFetchData = async () => {
+    try {
+      if (!endpoint) {
+        alert("Please write to the contract first to set the endpoint.");
+        return;
+      }
+
       const data = await fetchGraphQLData<{ notices: { edges: { node: { payload: string } }[] } }>(
         endpoint,
         NOTICES_QUERY
@@ -98,7 +117,7 @@ const DataFetchSection: React.FC = () => {
           className="mb-4"
         />
         <Button
-          onClick={handleFetchData}
+          onClick={handleWriteContract}
           className="w-full bg-gray-800 text-white hover:bg-gray-700"
           disabled={isPending}
         >
@@ -108,12 +127,22 @@ const DataFetchSection: React.FC = () => {
               Processing...
             </>
           ) : (
-            "Fetch Data"
+            "Write Contract"
           )}
         </Button>
       </div>
 
+      <div className="w-full max-w-md mb-8">
+        <Button
+          onClick={handleFetchData}
+          className="w-full bg-gray-800 text-white hover:bg-gray-700"
+        >
+          Fetch Data
+        </Button>
+      </div>
+
       <div className="w-full max-w-2xl">
+        <h2 className="text-2xl font-bold text-center mb-4">Recent Oracle Data into Cartesi Node</h2>
         <Table>
           <TableHeader>
             <TableRow>
