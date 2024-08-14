@@ -13,7 +13,7 @@ import { Loader2 } from "lucide-react";
 import { useAccount, useWriteContract } from "wagmi";
 import { useWriteInputBox } from "./hooks/generated";
 import { OracleCartesiReaderABi } from "./lib/oracleAbi";
-import { Address, Hex, stringToHex } from "viem";
+import { Address, formatEther, Hex, stringToHex } from "viem";
 import { fetchGraphQLData } from "./utils/api";
 import { NOTICES_QUERY } from "./utils/queries";
 
@@ -36,6 +36,14 @@ const DataFetchSection: React.FC = () => {
     const str = Buffer.from(hex.slice(2), 'hex').toString('utf8');
     return JSON.parse(str);
   };
+
+  const convertToEther = (decoded: string | number): string => {
+    const weiValue = BigInt(Math.floor(Number(decoded)))
+    const etherValue = formatEther(weiValue)
+
+    // Convert to number and fix to 2 decimal places
+    return Number(etherValue).toFixed(2)
+  }
 
   // First function to handle contract write
   const handleWriteContract = async () => {
@@ -150,7 +158,7 @@ const DataFetchSection: React.FC = () => {
           <TableBody>
             {tableData.map((data, index) => (
               <TableRow key={index}>
-                <TableCell>${data.price}</TableCell>
+                <TableCell>${convertToEther(data.price)}</TableCell>
                 <TableCell>{data.timestamp}</TableCell>
               </TableRow>
             ))}
