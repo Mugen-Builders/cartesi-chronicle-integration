@@ -16,9 +16,9 @@ Welcome to the **Cartesi Chronicle Integration** repository! This template is a 
 
 ## Repository Structure
 
--   **test-chronicle:** Contains the dApp backend. The template is a simple echo written in python.
--   **frontend-chronicle:** The React-based frontend that interacts with the Cartesi Rollups via the deployed smart contract.
--   **contracts:** Solidity smart contracts for integrating Chronicle oracles and Cartesi InputBox.
+-   **[backend](./backend/):** Contains the dApp backend. The template is a simple echo written in python.
+-   **[frontend](./frontend/):** The React-based frontend that interacts with the Cartesi Rollups via the deployed smart contract.
+-   **[contracts](./contracts/):** Solidity smart contracts for integrating Chronicle oracles and Cartesi InputBox.
 
 ## Index
 1.  **Introduction to Cartesi**
@@ -77,7 +77,7 @@ The contract (`OracleCartesiReader.sol`) is responsible for fetching data from t
 
 1.  **Navigate to Frontend Directory:**
     
-    `cd ../frontend-chronicle` 
+    `cd frontend` 
     
 2.  **Install Frontend Dependencies:**
     
@@ -89,7 +89,7 @@ The contract (`OracleCartesiReader.sol`) is responsible for fetching data from t
     -   Replace the placeholder address with the actual address of the deployed `OracleCartesiReader` contract on Sepolia.
 4.  **Run the Frontend:** Start the frontend application.
     
-    `npm start` 
+    `npm run dev` 
     
     This will launch the React application that interacts with your deployed smart contract.
     
