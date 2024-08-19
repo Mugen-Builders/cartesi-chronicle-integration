@@ -25,9 +25,8 @@ Welcome to the **Cartesi Chronicle Integration** repository! This template is a 
 2.  **Introduction to Chronicle**
 3.  **Understanding Oracle Usage**
 4.  **Deploying the Contracts**
-5.  **Setting Up the Backend**
-6.  **Mounting the Frontend**
-7.  **Showcase: The dApp in Action**
+5.  **Mounting the Frontend**
+6.  **Showcase: The dApp in Action**
 
 ----------
 
@@ -51,7 +50,8 @@ Before diving into the code, it's important to understand how oracles work and h
 
 So the integration happens with the usage of the contracts/OracleCartesiReader.sol contract. It is responsible to integrate all the necessary to collect the data from the Chronicle Oracle and feed the InputBox contract which is responsible for receive the dApp inputs for Cartesi Aplications. 
 
-![chronicle](https://github.com/user-attachments/assets/a97f8e91-6b18-4f2e-9b02-4596cc8a68a0)
+![chronicle (1)](https://github.com/user-attachments/assets/16f65e77-d50f-4acd-bc76-ab914ca255de)
+
   
 
 ## 4. Deploying the Contracts
@@ -73,7 +73,7 @@ The contract (`OracleCartesiReader.sol`) is responsible for fetching data from t
 -   Follow the steps above to deploy this contract using Remix or your preferred method.
 -   Follow the https://docs.cartesi.io/cartesi-rollups/1.5/deployment/introduction/ to deploy the code backend. You can either store the node in fly.io or run it locally. You will need it running when you run the frontend to send information.
 
-## 6. Mounting the Frontend
+## 5. Mounting the Frontend
 
 1.  **Navigate to Frontend Directory:**
     
@@ -83,22 +83,18 @@ The contract (`OracleCartesiReader.sol`) is responsible for fetching data from t
     
     `npm install` 
     
-3.  **Update Contract Address:**
-    
-    -   In your frontend code, locate the part where the contract address is defined.
-    -   Replace the placeholder address with the actual address of the deployed `OracleCartesiReader` contract on Sepolia.
-4.  **Run the Frontend:** Start the frontend application.
+3.  **Run the Frontend:** Start the frontend application.
     
     `npm run dev` 
     
     This will launch the React application that interacts with your deployed smart contract.
     
 
-## 7. Showcase: The dApp in Action
+## 6. Showcase: The dApp in Action
 
 Once everything is set up, navigate to your front-end application in the browser. Here's what you should be able to do:
 
--   **Submit Data:** Enter a string in the input field and submit it. The front end will send this string, along with data fetched from the Chronicle oracle, to the deployed smart contract.
+-   **Submit transaction:** Submit a transaction from the frontend. The front end will send a transaction to fetch the price feed from the Chronicle oracle, to the deployed smart contract.
     
 -   **Data Processing:** The data is then processed by Cartesi Rollups, simulating complex off-chain computation.
     
