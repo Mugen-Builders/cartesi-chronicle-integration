@@ -8,10 +8,18 @@ logger = logging.getLogger(__name__)
 rollup_server = environ["ROLLUP_HTTP_SERVER_URL"]
 logger.info(f"HTTP rollup_server url is {rollup_server}")
 
+def create_notice(data):
+    response = requests.post(rollup_server + "/notice", json={"payload": data["payload"]})
+    return response
 
 def handle_advance(data):
-    logger.info(f"Received advance request data {data}")
-    return "accept"
+    try:
+        response = create_notice(data)
+        logger.info(f"Notice created sucessfully: {data}. Return code is : {response.status_code}")
+        return "accept"
+    except Exception as e:
+        logger.info(f"Notice was not created: {e}")
+        return "reject"
 
 
 def handle_inspect(data):
