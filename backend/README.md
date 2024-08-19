@@ -1,9 +1,16 @@
-# Deroll template
+# Deploying the Backend
 
-This is a template for [Cartesi](https://cartesi.io) applications that use the [Deroll](https://github.com/tuler/deroll) framework.
+The `OracleCartesiReader.sol` contract is responsible for fetching data from the Chronicle oracle and sending it to Cartesi Rollups via the InputBox.
 
-For documentation on how to develop Cartesi applications refer to https://docs.cartesi.io
+1. **Deploy the Contract**
+   - Follow [the steps here to deploy the `OracleCartesiReader.sol` contract](../contracts/README.md) using Remix or your preferred method.
 
-For documentation on how to use Deroll refer to https://github.com/tuler/deroll
+2. **Deploy the Backend Code**
+   - Follow the instructions in the [Cartesi Rollups Deployment Guide](https://docs.cartesi.io/cartesi-rollups/1.5/deployment/introduction/).
+   - You have two options for deploying the backend:
+     a. Store the node in `fly.io`
+     b. Run it locally
+   
+   > Note: The backend needs to be running when you operate the frontend to send information.
 
-Application logic should go in `src/index.ts`.
+> Important: Make sure to keep your backend running and accessible for proper functionality of the entire system.
