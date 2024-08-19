@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi'
-import { anvil, mainnet, sepolia } from 'wagmi/chains'
+import { anvil, sepolia } from 'wagmi/chains'
 import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
 
 export const config = createConfig({
