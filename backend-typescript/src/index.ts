@@ -6,6 +6,7 @@ type InspectRequestData = components["schemas"]["Inspect"];
 type RequestHandlerResult = components["schemas"]["Finish"]["status"];
 type RollupsRequest = components["schemas"]["RollupRequest"];
 type InspectRequestHandler = (data: InspectRequestData) => Promise<void>;
+export type Notice = components["schemas"]["Notice"];
 type AdvanceRequestHandler = (
   data: AdvanceRequestData
 ) => Promise<RequestHandlerResult>;
@@ -15,11 +16,24 @@ console.log("HTTP rollup_server url is " + rollupServer);
 
 const handleAdvance: AdvanceRequestHandler = async (data) => {
   console.log("Received advance request data " + JSON.stringify(data));
+  await createNotice({ payload: data.payload });
   return "accept";
 };
 
 const handleInspect: InspectRequestHandler = async (data) => {
   console.log("Received inspect request data " + JSON.stringify(data));
+};
+
+const createNotice = async (payload: Notice) => {
+  console.log("creating notice with payload", payload);
+
+  await fetch(`${rollupServer}/notice`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 };
 
 const main = async () => {
