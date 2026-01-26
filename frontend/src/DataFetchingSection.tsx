@@ -57,7 +57,10 @@ const DataFetchSection: React.FC = () => {
           args: [dappAddress as Address, stringToHex(JSON.stringify(mockData)) as Hex],
         });
       } else if (chain?.id === 11155111) { // Sepolia chain ID
+        console.log("Writing contract to Sepolia");
         setEndpoint('https://cartesi-chronicle-test.fly.dev/graphql');
+        console.log("Oracle contract address", oracleContract);
+        console.log("dappAddress", dappAddress);
         await writeContractAsync({
           abi: OracleCartesiReaderABi,
           address: oracleContract as Address,
