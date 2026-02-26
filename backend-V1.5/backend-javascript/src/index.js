@@ -2,12 +2,16 @@
 // it will be used by any DApp, so we are already including it here
 const { ethers } = require("ethers");
 
+
+let last_price = 0;
 const rollup_server = process.env.ROLLUP_HTTP_SERVER_URL;
 console.log("HTTP rollup_server url is " + rollup_server);
 
 async function handle_advance(data) {
   console.log("Received advance request data " + JSON.stringify(data));
   try {
+    last_price = data.payload;
+    console.log("New price is " + last_price);
     const response = await createNotice(data);
     console.log(`Notice created successfully: ${JSON.stringify(data)}. Return code is: ${response.status}`);
     return "accept";
@@ -19,6 +23,7 @@ async function handle_advance(data) {
 
 async function handle_inspect(data) {
   console.log("Received inspect request data " + JSON.stringify(data));
+  const response = await createReport(last_price);
   return "accept";
 }
 
@@ -30,6 +35,21 @@ async function createNotice(data) {
               'Content-Type': 'application/json'
           },
           body: JSON.stringify({ payload: data.payload })
+      });
+      return response;
+  } catch (error) {
+      throw error;
+  }
+}
+
+async function createReport(data) {
+  try {
+      const response = await fetch(rollup_server + '/report', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ payload: data })
       });
       return response;
   } catch (error) {

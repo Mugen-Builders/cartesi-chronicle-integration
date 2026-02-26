@@ -3,7 +3,7 @@ export const OracleCartesiReaderABi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_dappAddress",
+				"name": "dappAddress",
 				"type": "address"
 			}
 		],
