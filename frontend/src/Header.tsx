@@ -18,7 +18,7 @@ const Header: React.FC = () => {
   return (
     <header className="p-4 flex justify-between items-center">
       <div className="text-2xl font-bold">
-        Cartesi Rollups + Chronicle Protocol
+        Cartesi Rollups + Chainlink Protocol
       </div>
       <div>
         {isConnected ? (

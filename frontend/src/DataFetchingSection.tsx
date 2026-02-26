@@ -57,13 +57,27 @@ const DataFetchSection: React.FC = () => {
           args: [dappAddress as Address, stringToHex(JSON.stringify(mockData)) as Hex],
         });
       } else if (chain?.id === 11155111) { // Sepolia chain ID
+        console.log("Writing contract to Sepolia");
         setEndpoint('https://cartesi-chronicle-test.fly.dev/graphql');
+        console.log("Oracle contract address", oracleContract);
+        console.log("dappAddress", dappAddress);
         await writeContractAsync({
           abi: OracleCartesiReaderABi,
           address: oracleContract as Address,
           functionName: "relayPrice",
           args: [dappAddress],
         });
+      } else if (chain?.id === 84532) { // Base Sepolia chain ID
+          console.log("Writing contract to Base Sepolia");
+          setEndpoint('http://192.168.64.4:10011/rpc');
+          console.log("Oracle contract address", oracleContract);
+          console.log("dappAddress", dappAddress);
+          await writeContractAsync({
+            abi: OracleCartesiReaderABi,
+            address: oracleContract as Address,
+            functionName: "relayPrice",
+            args: [dappAddress as Address],
+          });
       } else {
         console.error("Unsupported chain");
         return;
@@ -77,32 +91,120 @@ const DataFetchSection: React.FC = () => {
   };
 
   // Second function to fetch data and update the table
-  const handleFetchData = async () => {
-    try {
-      if (!endpoint) {
-        alert("Please write to the contract first to set the endpoint.");
+  // const handleFetchData = async () => {
+  //   try {
+  //     if (!endpoint) {
+  //       alert("Please write to the contract first to set the endpoint.");
+  //       return;
+  //     }
+
+  //     const data = await fetchGraphQLData<{ notices: { edges: { node: { payload: string } }[] } }>(
+  //       endpoint,
+  //       NOTICES_QUERY
+  //     );
+
+  //     // Decode the payload and update the table data
+  //     const decodedData = data.notices.edges.map(edge => hexToJson(edge.node.payload));
+
+  //     setTableData(
+  //       decodedData.map(decoded => ({
+  //         price: decoded.ethUsdPrice,
+  //         timestamp: new Date(decoded.timestamp * 1000).toLocaleString(), // Assuming the timestamp is in seconds
+  //       }))
+  //     );
+
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+
+  // helpers
+const hexToUtf8 = (hex: string) => {
+  const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+  const bytes = clean.match(/.{1,2}/g)?.map((b) => parseInt(b, 16)) ?? [];
+  return new TextDecoder().decode(new Uint8Array(bytes));
+};
+
+const hexJsonToObj = (hex: string) => JSON.parse(hexToUtf8(hex));
+
+type CartesiNotice = {
+  decoded_data?: { payload?: string };
+  raw_data?: string;
+  index?: string;
+  // optional fields omitted
+};
+
+type CartesiListOutputsResponse = {
+  jsonrpc: "2.0";
+  result?: {
+    data?: CartesiNotice[];
+    pagination?: { total_count: number; limit: number; offset: number };
+  };
+  error?: { code: number; message: string };
+  id: number;
+};
+
+const handleFetchData = async () => {
+  try {
+    if (!endpoint) {
+     setEndpoint('http://192.168.64.4:10011/rpc');
+      return;
+    }
+
+    const body = {
+      jsonrpc: "2.0",
+      method: "cartesi_listOutputs", // <-- notices (not outputs)
+      params: {
+        application: dappAddress,
+        limit: 10,
+        offset: 0,
+      },
+      id: 1,
+    };
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const rpc: CartesiListOutputsResponse = await res.json();
+
+    if (!res.ok || rpc.error) {
+      throw new Error(rpc.error?.message ?? `HTTP ${res.status}`);
+    }
+
+    const notices = rpc.result?.data ?? [];
+
+    // Prefer decoded_data.payload (already the pure JSON payload hex).
+    // Fallback to parsing raw_data if decoded_data isn't present.
+    const decodedObjects = notices.map((n) => {
+      const payloadHex = n.decoded_data?.payload;
+      if (!payloadHex) throw new Error("Notice missing decoded_data.payload");
+      if (n.index == '0x1' || n.index == '0x0') {
         return;
       }
+      return hexJsonToObj(payloadHex);
+    });
 
-      const data = await fetchGraphQLData<{ notices: { edges: { node: { payload: string } }[] } }>(
-        endpoint,
-        NOTICES_QUERY
-      );
+    const filteredDecodedObjects = decodedObjects.filter(obj => obj !== undefined && obj !== null);
 
-      // Decode the payload and update the table data
-      const decodedData = data.notices.edges.map(edge => hexToJson(edge.node.payload));
+    console.log("Filtered objects from notices:", filteredDecodedObjects);
 
-      setTableData(
-        decodedData.map(decoded => ({
-          price: decoded.ethUsdPrice,
-          timestamp: new Date(decoded.timestamp * 1000).toLocaleString(), // Assuming the timestamp is in seconds
-        }))
-      );
+    console.log("Decoded objects from notices:", decodedObjects);
 
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+    console.log("Decoded objects from notices:", filteredDecodedObjects[0].ethUsdPrice);
+
+    setTableData(
+      filteredDecodedObjects.map((decoded: any) => ({
+        price: decoded.ethUsdPrice,
+        timestamp: new Date(Number(decoded.timestamp) * 1000).toLocaleString(),
+      }))
+    );
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
 
   return (
     <>
@@ -158,7 +260,7 @@ const DataFetchSection: React.FC = () => {
           <TableBody>
             {tableData.map((data, index) => (
               <TableRow key={index}>
-                <TableCell>${convertToEther(data.price)}</TableCell>
+                <TableCell>${(Number(data.price) / 100000000)}</TableCell>
                 <TableCell>{data.timestamp}</TableCell>
               </TableRow>
             ))}
